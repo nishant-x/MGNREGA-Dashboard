@@ -24,6 +24,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <meta name="description" content="MGNREGA District Performance Dashboard – Easily check your district's MGNREGA performance, trends, and summaries." />
+      <meta name="keywords" content="MGNREGA, India, District Performance, Rural Development, Dashboard, Government Program" />
+      <meta name="author" content="Nishant Jhade" />
+
+    <title>MGNREGA Dashboard</title>
+  </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

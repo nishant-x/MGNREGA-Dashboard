@@ -28,55 +28,59 @@ export default function Home() {
   const [error, setError] = useState("");
   const [detecting, setDetecting] = useState(false);
 
-  // ✅ Auto detect user location
-  const handleDetectLocation = () => {
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser.");
-      return;
-    }
+  // Auto detect user location
+ const handleDetectLocation = () => {
+  if (!navigator.geolocation) {
+    setError("Geolocation is not supported by your browser.");
+    return;
+  }
 
-    setDetecting(true);
-    setError("");
+  setDetecting(true);
+  setError("");
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude, longitude } = position.coords;
 
-        try {
-          const response = await fetch(
-            `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=YOUR_OPENCAGE_API_KEY`
-          );
-          const data = await response.json();
-          const components = data.results[0]?.components;
+      try {
+        const response = await fetch(
+          `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=4c191b812e934ce6b1e492acb63b2843`
+        );
+        const data = await response.json();
+        const components = data.results[0]?.components;
 
-          const detectedState = components?.state?.toUpperCase();
-          const detectedDistrict =
-            components?.state_district?.toUpperCase() ||
-            components?.county?.toUpperCase() ||
-            "";
+        const detectedState = components?.state?.toUpperCase();
+        const detectedDistrictRaw =
+          components?.state_district?.toUpperCase() ||
+          components?.district?.toUpperCase() ||
+          components?.county?.toUpperCase() ||
+          "";
 
-          if (detectedState && STATES.includes(detectedState)) {
-            setStateName(detectedState);
-          }
-          if (detectedDistrict) {
-            setDistrict(detectedDistrict);
-          }
+        const cleanDistrict = detectedDistrictRaw.replace(/ DISTRICT| DIVISION/gi, "").trim();
 
-          if (!detectedState || !detectedDistrict) {
-            setError("Could not accurately detect your location.");
-          }
-        } catch (err) {
-          setError("Failed to fetch location details.");
-        } finally {
-          setDetecting(false);
+        if (detectedState && STATES.includes(detectedState)) {
+          setStateName(detectedState);
         }
-      },
-      () => {
-        setError("Unable to retrieve your location. Please allow access.");
+        if (cleanDistrict) {
+          setDistrict(cleanDistrict);
+        }
+
+        if (!detectedState || !cleanDistrict) {
+          setError("Could not accurately detect your location.");
+        }
+      } catch (err) {
+        setError("Failed to fetch location details.");
+      } finally {
         setDetecting(false);
       }
-    );
-  };
+    },
+    () => {
+      setError("Unable to retrieve your location. Please allow access.");
+      setDetecting(false);
+    }
+  );
+};
+
 
   // Fetch districts for selected state
   useEffect(() => {
